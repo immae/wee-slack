@@ -45,6 +45,10 @@ try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
+try:
+    from emoji_aliases import convert_aliases_to_emoji
+except:
+    convert_aliases_to_emoji = None
 
 try:
     from json import JSONDecodeError
@@ -3618,6 +3622,12 @@ def modify_buffer_line(buffer_pointer, ts, new_text):
 
     for pointer, line in zip(pointers, lines):
         data = w.hdata_pointer(hdata.line, pointer, 'data')
+        if convert_aliases_to_emoji is not None:
+            try:
+                line = convert_aliases_to_emoji(None, None, None, line)
+            except:
+                dbg("emoji issue: {}\n".format(traceback.format_exc()), level=2)
+                pass
         w.hdata_update(hdata.line_data, data, {"message": line})
 
     return w.WEECHAT_RC_OK
