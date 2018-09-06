@@ -1729,6 +1729,10 @@ class SlackChannel(SlackChannelCommon):
             topic = self.render_topic(fallback_to_purpose=True)
             w.buffer_set(self.channel_buffer, "title", topic)
 
+    def fetch_pinned_messages(self):
+        s = SlackRequest(self.team.token, "pins.list", {"channel": self.identifier})
+        self.eventrouter.receive(s)
+
     def update_from_message_json(self, message_json):
         for key, value in message_json.items():
             setattr(self, key, value)
