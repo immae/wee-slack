@@ -380,6 +380,8 @@ class EventRouter(object):
             # Read the data from the websocket associated with this team.
             data = decode_from_utf8(self.teams[team_hash].ws.recv())
             message_json = json.loads(data)
+            if not message_json.get("ok", True) or message_json.get("error"):
+                w.prnt("", "Error response from websocket for {}: {}".format(self.teams[team_hash].name, data))
             metadata = WeeSlackMetadata({
                 "team": team_hash,
             }).jsonify()
@@ -1188,6 +1190,7 @@ class SlackTeam(object):
                     self.set_connected()
                     self.connecting = False
                 except Exception as e:
+                    w.prnt("", "Exception in connect: {}: {!r}".format(type(e).__name__, e.args))
                     dbg("websocket connection error: {}".format(decode_from_utf8(e)))
                     self.connecting = False
                     return False
@@ -1221,10 +1224,15 @@ class SlackTeam(object):
         try:
             if expect_reply:
                 self.ws_replies[data["id"]] = data
+            if len(message) > 16000:
+                w.prnt("", "Message to {} too long ({} chars), not sending: {}".format(self.name, len(message), message))
+                traceback.print_stack()
+                return
             self.ws.send(encode_to_utf8(message))
             dbg("Sent {}...".format(message[:100]))
-        except:
-            print "WS ERROR"
+        except Exception as ex:
+            w.prnt("", "WS ERROR: team: {}, exception type: {}, data: {}, exception arguments: {!r}".format(self.name, type(ex).__name__, message, ex.args))
+            traceback.print_stack()
             dbg("Unexpected error: {}\nSent: {}".format(sys.exc_info()[0], data))
             self.set_connected()
 
