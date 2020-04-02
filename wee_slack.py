@@ -3421,7 +3421,7 @@ def unfurl_refs(text):
                 elif url_matches_desc and config.unfurl_auto_link_display == "url":
                     return ref
                 else:
-                    return "{} ({})".format(ref, fallback)
+                    return "{} ({})".format(fallback, ref)
         return ref
 
     return re.sub(r"<([^|>]*)(?:\|([^>]*))?>", unfurl_ref, text)
