@@ -3272,7 +3272,9 @@ def process_thread_subscribed(message_json, eventrouter, team, channel, metadata
     dbg("THREAD SUBSCRIBED {}".format(message_json))
     channel = team.channels[message_json["subscription"]["channel"]]
     parent_ts = message_json["subscription"]["thread_ts"]
-    channel.messages.get(SlackTS(parent_ts)).subscribed = True
+    parent_message = channel.messages.get(SlackTS(parent_ts))
+    if parent_message is not None:
+        parent_message.subscribed = True
     channel.change_message(parent_ts)
 
 
