@@ -3576,7 +3576,12 @@ def create_reaction_string(reaction, myidentifier):
         users = '({})'.format(','.join(nicks))
     else:
         users = len(reaction['users'])
-    reaction_string = ':{}:{}'.format(reaction['name'], users)
+    if myidentifier in reaction['users']:
+        reaction_color = config.color_reaction_suffix_added_by_you
+    else:
+        reaction_color = config.color_reaction_suffix
+    reaction_emoji = colorize_string(reaction_color, ':{}:'.format(reaction['name']), reset_color=reaction_color)
+    reaction_string = '{}{}'.format(reaction_emoji, users)
     if myidentifier in reaction['users']:
         return colorize_string(config.color_reaction_suffix_added_by_you, reaction_string,
                 reset_color=config.color_reaction_suffix)
